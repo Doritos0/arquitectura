@@ -1,0 +1,103 @@
+{% extends 'core/layout.html' %}
+
+{% block content %}
+{% load static%}
+
+<div class="container-fluid">
+    <div class="row h-50" style="margin-top: 2%;">
+        <div class="col-6">
+            <form method="POST" class="form-control w-100 h-100">
+                {% csrf_token %}
+                <div class="form-group ">
+                    <label for="nombre">Registrar Nuevo Servicio</label>
+                    <input name="nombre" id="nombre_servicio" style="width: 90%;height: 20%;margin: 5px;"
+                        class="form-control" type="text" placeholder="Ingrese Nuevo Servicio">
+                    <center>
+                    <input  type="submit" name="ServicioFormulario" class="btn btn"
+                    style="height: 15%; width: 25%; margin-bottom: 5px; background-color: #AFB4C7; color: white;"></input>
+                    </center>
+                </div>
+            </form>
+        </div>
+        <div class="col-6">
+            <form method="POST" class="form-control w-100 h-100">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="nombre">Registrar Nuevo Proveedor</label>
+                    <input name="nombre" id="nombre_proveedor" style="width: 90%;height: 20%;margin: 5px;"
+                        class="form-control" type="text" placeholder="Ingrese Nuevo Proveedor">
+                    <input name="fono" id="fono_proveedor" style="width: 90%;height: 20%;margin: 5px;"
+                        class="form-control" type="text" placeholder="Ingrese Telefono">
+                    <input name="tipo" id="tipo_proveedor" style="width: 90%;height: 20%;margin: 5px;"
+                        class="form-control" type="text" placeholder="Ingrese Tipo de Proveedor">
+                    <center>
+                        <input  type="submit" name="ProveedorFormulario" class="btn btn"
+                        style="height: 15%; width: 25%; margin: 5px; background-color: #AFB4C7; color: white;"></input>
+                    </center>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="row h-50" style="margin-top: 2%;">
+        <div class="col-6">
+            <form method="POST" class="form-control w-100 h-100">
+                {% csrf_token %}
+                <div class="form-group ">
+                    <label for="user">Registrar Nuevo Cliente</label>
+                    <input name="user" id="user_cliente" style="width: 90%;height: 20%;margin: 5px;"
+                    class="form-control" type="text" placeholder="Ingrese User de Cliente">
+                    <input name="password" id="password_cliente" style="width: 90%;height: 20%;margin: 5px;"
+                    class="form-control" type="text" placeholder="Ingrese Password de Cliente">
+                    <input name="nombre" id="nombre_cliente" style="width: 90%;height: 20%;margin: 5px;"
+                    class="form-control" type="text" placeholder="Ingrese Nombre de Cliente">
+                    <center>
+                    <input  type="submit" name="ClienteFormulario" class="btn btn"
+                    style="height: 15%; width: 25%; margin-bottom: 5px; background-color: #AFB4C7; color: white;"></input>
+                    </center>
+                </div>
+            </form>
+        </div>
+        <div class="col-6">
+            <form method="POST" class="form-control w-100 h-100">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="nombre">Registrar Nuevo Proveedor</label>
+                    <input name="nombre" id="nombre_proveedor" style="width: 90%;height: 20%;margin: 5px;"
+                        class="form-control" type="text" placeholder="Ingrese Nuevo Proveedor">
+                    <input name="fono" id="fono_proveedor" style="width: 90%;height: 20%;margin: 5px;"
+                        class="form-control" type="text" placeholder="Ingrese Telefono">
+                    <input name="tipo" id="tipo_proveedor" style="width: 90%;height: 20%;margin: 5px;"
+                        class="form-control" type="text" placeholder="Ingrese Tipo de Proveedor">
+                    <center>
+                        <input  type="submit" name="ProveedorFormulario" class="btn btn"
+                        style="height: 15%; width: 25%; margin: 5px; background-color: #AFB4C7; color: white;"></input>
+                    </center>
+                </div>
+            </form>
+        </div>
+    </div>
+    <center>
+        <h1 class="text-white" style="margin-top: 10px;">RESERVAS</h1>
+    </center>
+    <div class="row h-50" style="margin-top: 2%; margin-bottom: 10px;">
+        {% for res in reservas %}
+        <div class="card text-center col-4">
+            <div class="card-header">
+                Reserva {{ res.fecha_reserva }}
+            </div>
+            <div class="card-body">
+              <h5 class="card-title">Servico {{ res.servicio }}</h5>
+              <p class="card-text">para cliente: {{ res.cliente }}</p>
+              <form method="POST">
+                {% csrf_token %}
+                <input class="card-text" value="{{ res.id_reserva }}" type="hidden" readonly name="reserva" id="reserva">
+                <br>
+                <input class="btn btn-success" type="submit" value="Realizada" name="reserva_realida">
+              </form>
+            </div>
+          </div>
+        {% endfor %}
+    </div>
+</div>
+
+{% endblock %}

@@ -1,14 +1,36 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset='utf-8'>
-    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
-    <title>Page Title</title>
-    <meta name='viewport' content='width=device-width, initial-scale=1'>
-    <link rel='stylesheet' type='text/css' media='screen' href='main.css'>
-    <script src='main.js'></script>
-</head>
-<body>
-    <h1>HOLA AWEONAO</h1>
+{% extends 'core/layout.html' %}
+
+{% block content %}
+{% load static%}
+<body style="background-color: #575B6C;">
+    <div class="container">
+        <div class="row">
+            <div>
+                <h1>INGRESA LOS DATOS PARA TU RESERVA</h1>
+            </div>
+
+        </div>
+        <div class="row">
+            <div class="col-9" style="margin-top: 2%;">
+                <form method="post" class="form-control">
+                    {% csrf_token %}
+                    <label for="fecha" class="form-label" style="color: black; border-radius: 2px;">Selecciona una fecha:</label>
+                    <input type="date" class="form-group" min="2023-11-21" value="2023-11-22" id="fecha" name="fecha" class="datepicker">
+                    <select class="form-select" name="servicio" aria-label="Default select example">
+                        <option selected>Seleccione una opción</option>
+                        {% for ser in servicios %}
+                            <option value="{{ ser.nombre }}">{{ ser.nombre }}</option>
+                        {% endfor %}
+                    </select>
+                    <input type="submit" name="ReservaFormulario" class="btn btn-dark" style="margin-top: 10px;" value="Ingresar Reserva"></input>
+                </form>
+            </div>
+            <div class="col-3" style="margin-top: 2%; border: #DEE2E6 solid 1px; background-color: #FFFFFF; border-radius: 5%;">
+                <h1 class="font-weight-bold " style="font-family: Arial, sans-serif;">AQUI PUEDES INGRESAR TU RESERVA</h1>
+            </div>
+        </div>
+    </div>
 </body>
-</html>
+
+
+{% endblock %}

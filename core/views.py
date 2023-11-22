@@ -1,16 +1,20 @@
 
 from django.shortcuts import redirect,render
+from django.urls import reverse
 
-from .models import Usuario
+from .models import Proveedor, Usuario, Servicio, ReservaHora
 from .serializers import UsuarioSerializer
 
-from .forms import LoginForm
+from .forms import LoginForm, ReservaForm, ServicioForm, ProveedorForm, ClienteForm
 
 #CREACION API
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework import status
+
+
+from datetime import datetime
 
 # Create your views here.
 
@@ -60,37 +64,132 @@ def login (request):
     form = LoginForm()
 
     if request.method == 'POST':
-        query = Usuario.objects.all()
-        serializer = UsuarioSerializer(query, many = True)
-        print(serializer.data)
-        users= Usuario.objects.values_list('user', flat=True)
-        contras = Usuario.objects.values_list('password', flat=True)
-        print(users)
-        lista_users = list(users)
-        lista_pass = list(contras)
         user = request.POST.get('user',None)
         passw = request.POST.get('password',None)
-        if user in lista_users:
-            i=lista_users.index(user)
-            if lista_pass[i] == passw:
-                return render(request, 'core/home.html')
-            #if de tipo de usuario redirige a distintos templates
-        else:
-            print("Invalido")
-
-
+        try:
+            usuario = Usuario.objects.get(user=user)
+            if user == usuario.user:
+                if passw == usuario.password:
+                    if usuario.tipo == 'Empleado':
+                        print("Ingreso Exitoso")
+                        print(usuario.nombre)
+                        user_dic = usuario.to_dict()
+                        request.session['usuario']= user_dic
+                        request.session['nombre']=usuario.nombre
+                        return redirect('empleado')
+                    elif usuario.tipo == 'Cliente':
+                        print("Ingreso Exitoso")
+                        user_dic = usuario.to_dict()
+                        request.session['usuario']= user_dic
+                        request.session['nombre']=usuario.nombre
+                        return redirect('home')
+                    elif usuario.tipo == 'Administrador':
+                        print("Ingreso Exitoso")
+                        return redirect(reverse('admin:index'))
+                    else :
+                        usuario.delete()
+                        print("Usuario tuvo que ser borrado")
+                else:
+                    print("Pass Invalida")
+            else:
+                print("User Invalido")
+        except Usuario.DoesNotExist:
+            print("Usuario no Existe")
+            return render(request,'core/login.html', {'form':form})
+        
     return render(request,'core/login.html', {'form':form})
 
-'''
- if request.method == 'POST':
-        query = Usuario.objects.all()
-        serializer = UsuarioSerializer(query, many = True)
-        Usuarios=Usuario.objects.all('user', flat=True)
-        Contraseñas=Usuario.objects.values_list('password', flat=True)
-        user = request.POST.get('user',None)
-        password = request.POST.get('password', None)
-        print(serializer.data)
-        if user in Usuarios:
-            if password in Contraseñas:
-                print("Valido")
-'''
+def home(request):
+
+    usuario = request.session.get('usuario',{})
+    nombre = request.session.get('nombre',{})
+    servicios = Servicio.objects.all()
+    fecha = datetime.now()
+    fecha_actual = fecha.date()
+
+
+    if request.method == 'POST':
+        if 'ReservaFormulario' in request.POST:
+            
+            fecha = request.POST.get('fecha',None)
+            fecha_date = datetime.strptime(fecha, '%Y-%m-%d').date()
+            if fecha_date>=fecha_actual:
+                try :
+                    
+                    servicio_nom = request.POST.get('servicio',None)
+                    servicio = Servicio.objects.get(nombre=servicio_nom)
+                    cliente = Usuario.objects.get(nombre=nombre)
+                    
+                    
+                    reserva=ReservaHora()
+                    reserva.fecha_reserva=fecha
+                    reserva.servicio=servicio
+                    reserva.cliente=cliente
+                    reserva.save()
+                    print("Reserva Ingresada")
+                except Servicio.DoesNotExist:
+                    print("Servicio Invalido")
+                    return render(request, 'core/home.html', {'usuario':usuario, 'servicios':servicios, 'nombre':nombre})
+                
+
+            else:
+                print("Fecha Invalida")
+
+
+    return render(request, 'core/home.html', {'usuario':usuario, 'servicios':servicios, 'nombre':nombre})
+
+def empleado(request):
+    usuario = request.session.get('usuario',{})
+    nombre = request.session.get('nombre',{})
+    reservas = ReservaHora.objects.all()
+
+    if request.method == 'POST':
+        
+        if 'reserva_realida' in request.POST:
+            print("ta bien")
+            id_reserva = request.POST.get('reserva', None)
+            try :
+                reserva = ReservaHora.objects.get(id_reserva=id_reserva)
+                reserva.delete()
+                return render(request, 'core/empleado.html', {'usuario':usuario, 'nombre':nombre, 'reservas':reservas})
+            except ReservaHora.DoesNotExist:
+                return render(request, 'core/empleado.html', {'usuario':usuario, 'nombre':nombre, 'reservas':reservas})
+
+        if 'ServicioFormulario' in request.POST:
+            form = ServicioForm(request.POST)
+            print("Servicio")
+            if form.is_valid():
+                print("FORMULARIO VALIDO")
+                try:
+                    servicio = Servicio.objects.get(nombre=form.cleaned_data['nombre'])
+                    return redirect('empleado')
+                except Servicio.DoesNotExist:
+                    servicio = Servicio()
+                    servicio.nombre = form.cleaned_data['nombre']
+                    servicio.save()
+            else:
+                print("INVALIDO")
+        elif 'ProveedorFormulario' in request.POST:
+            form = ProveedorForm(request.POST)
+            print(request.POST['nombre'])
+            if form.is_valid():
+                print("Proveedor Valido")
+                proveedor=Proveedor()
+                proveedor.nombre = form.cleaned_data['nombre']
+                proveedor.fono = form.cleaned_data['fono']
+                proveedor.tipo = form.cleaned_data['tipo']
+                proveedor.save()
+            else :
+                print("Datos Mal Ingresados")
+        elif 'ClienteFormulario' in request.POST:
+            form = ClienteForm(request.POST)
+            if form.is_valid():
+                cliente=Usuario()
+                cliente.user = form.cleaned_data['user']
+                cliente.password = form.cleaned_data['password']
+                cliente.nombre = form.cleaned_data['nombre']
+                cliente.tipo="Cliente"
+                cliente.save()
+        else:
+            print("ta mal")
+    return render(request, 'core/empleado.html', {'usuario':usuario, 'nombre':nombre, 'reservas':reservas})

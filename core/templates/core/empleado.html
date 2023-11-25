@@ -57,24 +57,6 @@
                 </div>
             </form>
         </div>
-        <div class="col-6">
-            <form method="POST" class="form-control w-100 h-100">
-                {% csrf_token %}
-                <div class="form-group">
-                    <label for="nombre">Registrar Nuevo Proveedor</label>
-                    <input name="nombre" id="nombre_proveedor" style="width: 90%;height: 20%;margin: 5px;"
-                        class="form-control" type="text" placeholder="Ingrese Nuevo Proveedor">
-                    <input name="fono" id="fono_proveedor" style="width: 90%;height: 20%;margin: 5px;"
-                        class="form-control" type="text" placeholder="Ingrese Telefono">
-                    <input name="tipo" id="tipo_proveedor" style="width: 90%;height: 20%;margin: 5px;"
-                        class="form-control" type="text" placeholder="Ingrese Tipo de Proveedor">
-                    <center>
-                        <input  type="submit" name="ProveedorFormulario" class="btn btn"
-                        style="height: 15%; width: 25%; margin: 5px; background-color: #AFB4C7; color: white;"></input>
-                    </center>
-                </div>
-            </form>
-        </div>
     </div>
     <center>
         <h1 class="text-white" style="margin-top: 10px;">RESERVAS</h1>
